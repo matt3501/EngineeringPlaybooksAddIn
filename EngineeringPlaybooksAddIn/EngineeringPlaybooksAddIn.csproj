@@ -163,6 +163,8 @@
     <Compile Include="FormListShapes.Designer.cs">
       <DependentUpon>FormListShapes.cs</DependentUpon>
     </Compile>
+    <Compile Include="Models\KnowledgeModel.cs" />
+    <Compile Include="Models\Outcome.cs" />
     <Compile Include="PlaybooksRibbon.cs">
       <SubType>Component</SubType>
     </Compile>
