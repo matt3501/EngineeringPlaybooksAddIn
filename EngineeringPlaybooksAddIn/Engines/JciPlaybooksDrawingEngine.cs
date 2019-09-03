@@ -1,6 +1,9 @@
-﻿using EngineeringPlaybooksAddIn.Models;
+﻿using System.Collections.Generic;
+using System.Drawing;
+using EngineeringPlaybooksAddIn.Models;
 using Microsoft.Office.Interop.Visio;
 using Newtonsoft.Json;
+using Color = EngineeringPlaybooksAddIn.Models.Color;
 
 namespace EngineeringPlaybooksAddIn.Engines
 {
@@ -77,30 +80,57 @@ namespace EngineeringPlaybooksAddIn.Engines
 
         private void DrawMap(KnowledgeModel model)
         {
-            var xpos = 3.75;
-            var ypos = 5.25;
+            var ellipseVertices = GetEllipseVertices(model);
 
-            var coreOval = ActivePage.DrawOval(xpos, ypos, xpos + 3.075, ypos - 2.555);
+            var xCenter = 5.2875;
+            var yCenter = 3.9725;
+
+            var coreOval = ActivePage.DrawOval(xCenter - 1.5375, yCenter + 1.2775, xCenter + 1.5375, yCenter - 1.2775);
             coreOval.CellsU["Fillforegnd"].FormulaU = "RGB(248, 248, 248)";
             coreOval.Text = "Key Outcomes";
 
-            DrawChildNode("Pursue Design", 6, 5.2, true, "255", "176", "201", "https://www.google.com");
-            DrawChildNode("Gather Requirements", 4.7, 5.6, true, "72", "172", "198", "https://www.google.com");
-            DrawChildNode("Develop Solution", 6.3, 4, true, "204", "196", "100", "https://www.google.com");
-            DrawChildNode("Deploy Product", 4.7, 3.2, true, "179", "172", "96", "https://www.google.com");
-            DrawChildNode("Engineer Titles", 3.25, 3.87, true, "150", "232", "255", "https://www.google.com");
-            DrawChildNode("Product Design Life cycle", 3.25, 5, true, "255", "244", "112", "https://www.google.com");
+            for (var index = 0; index < model.outcomes.Count; index++)
+            {
+                var outcome = model.outcomes[index];
+                var xOffset = ellipseVertices[index].X;
+                var yOffset = ellipseVertices[index].Y;
+                var color = ellipseVertices[index].Color;
+                DrawChildNode(outcome.title, xCenter + xOffset, yCenter + yOffset, color, outcome.contentUrl);
+            }
+        }
+        
+        private List<VertexColorPair> GetEllipseVertices(KnowledgeModel model)
+        {
+            var count = model.outcomes.Count;
+
+            var vertexColorPairs = new List<VertexColorPair>
+            {
+                new VertexColorPair(0.7125, 1.2275 ,new Color {R = 255, G = 176, B = 201} ),
+                new VertexColorPair(-0.5875,1.6275 , new Color {R = 72,  G = 172, B = 198} ),
+                new VertexColorPair(1.0125, 0.0275 ,new Color {R = 204, G = 196, B = 100} ),
+                new VertexColorPair(-0.5875,-0.7725,  new Color {R = 179, G = 172, B = 96 } ),
+                new VertexColorPair(-2.0375,-0.1025,  new Color {R = 150, G = 232, B = 255} ),
+                new VertexColorPair(-2.0375,1.0275 , new Color {R = 255, G = 244, B = 112} )
+            };
+
+            return vertexColorPairs;
         }
 
-        public void DrawChildNode(string nodeText, double xpos, double ypos, bool isBig, string colorR, string colorG,
-            string colorB, string nodeUrl)
+        public void DrawChildNode(string nodeText, double xpos, double ypos, Color color, string nodeUrl)
         {
             var node = ActivePage.DrawOval(xpos, ypos, xpos + 1.064, ypos - 0.884);
-            node.CellsU["Fillforegnd"].FormulaU = "RGB(" + colorR + ", " + colorG + ", " + colorB + ")";
+            node.CellsU["Fillforegnd"].FormulaU = "RGB(" + color.R + ", " + color.G + ", " + color.B + ")";
             node.Text = nodeText;
 
             var nodeHyperlink = node.AddHyperlink();
             nodeHyperlink.Address = nodeUrl;
         }
     }
+
 }
+
+
+
+
+
+
