@@ -15,8 +15,9 @@ namespace EngineeringPlaybooksAddIn.Controllers
         private const double YCenter = 3.9725;
         private const double KeyNodeMajorRadius = 1.5375;
         private const double KeyNodeMinorRadius = 1.2775;
-        private const double KeyChildNodeMajorRadius = 0.532;
-        private const double KeyChildNodeMinorRadius = 0.442;
+        private const double ChildNodeMajorRadius = 0.532;
+        private const double ChildNodeMinorRadius = 0.442;
+        private const string EllipseColor = "RGB(248, 248, 248)";
 
         /// <summary>
         /// These colors have been sourced from https://my.jci.com/brand-center/Resources/Johnson%20Controls%20brand%20guidelines_January%202018_v2.2.pdf
@@ -130,14 +131,14 @@ namespace EngineeringPlaybooksAddIn.Controllers
             var ellipseVectors = GetEllipseVertices(model);
 
             var coreOval = ActivePage.DrawOval(XCenter - KeyNodeMajorRadius, YCenter + KeyNodeMinorRadius, XCenter + KeyNodeMajorRadius, YCenter - KeyNodeMinorRadius);
-            coreOval.CellsU["Fillforegnd"].FormulaU = "RGB(248, 248, 248)";
+            coreOval.CellsU["Fillforegnd"].FormulaU = EllipseColor;
             coreOval.Text = "Key Outcomes";
 
             for (var index = 0; index < model.outcomes.Count; index++)
             {
                 var keyOutcome = model.outcomes[index];
                 var vertexColorPair = ellipseVectors[index];
-                DrawOutcomeChildNode(keyOutcome, vertexColorPair, XCenter, YCenter);
+                DrawKeyOutcomeChildNode(keyOutcome, vertexColorPair, XCenter, YCenter);
             }
         }
         
@@ -155,6 +156,15 @@ namespace EngineeringPlaybooksAddIn.Controllers
             return geometry.Select((point, index) => new VertexColorPair(Math.Round(point.X, 2), Math.Round(point.Y, 2), JciColors[index])).ToList();
         }
 
+        private List<VertexColorPair> GetEllipseVertices(Outcome outcome)
+        {
+            var count = outcome.childOutcomes.Count;
+
+            var geometry = GeometryController.GetPointsForEllipse(ChildNodeMajorRadius + .3, ChildNodeMinorRadius + .3, count, GeometryController.RotationStarts.RotationStartsAtAxisX);
+
+            return geometry.Select((point, index) => new VertexColorPair(Math.Round(point.X, 2), Math.Round(point.Y, 2), JciColors[index])).ToList();
+        }
+
         /// <summary>
         /// Pulls text and URL from keyOutcome, relative vector drawn off childEllipseCenter
         ///
@@ -164,18 +174,84 @@ namespace EngineeringPlaybooksAddIn.Controllers
         /// <param name="vertexColorPair"></param>
         /// <param name="childEllipseCenterX"></param>
         /// <param name="childEllipseCenterY"></param>
-        public void DrawOutcomeChildNode(Outcome keyOutcome, VertexColorPair vertexColorPair, double childEllipseCenterX, double childEllipseCenterY)
+        public void DrawKeyOutcomeChildNode(Outcome keyOutcome, VertexColorPair vertexColorPair,
+            double childEllipseCenterX, double childEllipseCenterY)
         {
-            var node = ActivePage.DrawOval(
-                childEllipseCenterX + vertexColorPair.X - KeyChildNodeMajorRadius,
-                childEllipseCenterY + vertexColorPair.Y + KeyChildNodeMinorRadius, 
-                childEllipseCenterX + vertexColorPair.X + KeyChildNodeMajorRadius,
-                childEllipseCenterY + vertexColorPair.Y - KeyChildNodeMinorRadius);
-            node.CellsU["Fillforegnd"].FormulaU = "RGB(" + vertexColorPair.Color.R + ", " + vertexColorPair.Color.G + ", " + vertexColorPair.Color.B + ")";
-            node.Text = keyOutcome.title;
+            var ellipseNodeX1 = childEllipseCenterX + vertexColorPair.X - ChildNodeMajorRadius;
+            var ellipseNodeY1 = childEllipseCenterY + vertexColorPair.Y + ChildNodeMinorRadius;
+            var ellipseNodeX2 = childEllipseCenterX + vertexColorPair.X + ChildNodeMajorRadius;
+            var ellipseNodeY2 = childEllipseCenterY + vertexColorPair.Y - ChildNodeMinorRadius;
+            var ellipseColor = "RGB(" + vertexColorPair.Color.R + ", " + vertexColorPair.Color.G + ", " +
+                               vertexColorPair.Color.B + ")";
 
-            var nodeHyperlink = node.AddHyperlink();
-            nodeHyperlink.Address = keyOutcome.contentUrl;
+            var newBulbCenterX = XCenter + 2 * vertexColorPair.X;
+            var newBulbCenterY = YCenter + 2 * vertexColorPair.Y;
+
+
+            DrawEllipse(keyOutcome, ellipseNodeX1, ellipseNodeY1, ellipseNodeX2, ellipseNodeY2, ellipseColor);
+
+            if (keyOutcome.childOutcomes.Any())
+            {
+                DrawKeyOutcomeConnectorAndBulb(vertexColorPair);
+                var ellipseVectors = GetEllipseVertices(keyOutcome);
+                for (var index = 0; index < keyOutcome.childOutcomes.Count; index++)
+                {
+                    var keyOutcomeChildOutcome = keyOutcome.childOutcomes[index];
+                    var keyOutcomeChildVector = ellipseVectors[index];
+
+                    var insideEllipseNodeX1 = newBulbCenterX + keyOutcomeChildVector.X - ChildNodeMajorRadius;
+                    var insideEllipseNodeY1 = newBulbCenterY + keyOutcomeChildVector.Y + ChildNodeMinorRadius;
+                    var insideEllipseNodeX2 = newBulbCenterX + keyOutcomeChildVector.X + ChildNodeMajorRadius;
+                    var insideEllipseNodeY2 = newBulbCenterY + keyOutcomeChildVector.Y - ChildNodeMinorRadius;
+                    var insideEllipseColor = EllipseColor;
+
+                    DrawEllipse(keyOutcomeChildOutcome, insideEllipseNodeX1, insideEllipseNodeY1, insideEllipseNodeX2, insideEllipseNodeY2, insideEllipseColor);
+                }
+            }
+        }
+
+        private void DrawKeyOutcomeConnectorAndBulb(VertexColorPair vertexColorPair)
+        {
+            var newBulbCenterX = XCenter + 2 * vertexColorPair.X;
+            var newBulbCenterY = YCenter + 2 * vertexColorPair.Y;
+            var connectorLine = ActivePage.DrawLine(XCenter + vertexColorPair.X, YCenter + vertexColorPair.Y, newBulbCenterX, newBulbCenterY);
+            connectorLine.SendToBack();
+
+            var ellipseNodeX1 = newBulbCenterX - ChildNodeMajorRadius;
+            var ellipseNodeY1 = newBulbCenterY + ChildNodeMinorRadius;
+            var ellipseNodeX2 = newBulbCenterX + ChildNodeMajorRadius;
+            var ellipseNodeY2 = newBulbCenterY - ChildNodeMinorRadius;
+            var ellipseColor = "RGB(" + vertexColorPair.Color.R + ", " + vertexColorPair.Color.G + ", " +
+                               vertexColorPair.Color.B + ")";
+
+            DrawEllipse(null, ellipseNodeX1, ellipseNodeY1, ellipseNodeX2, ellipseNodeY2, ellipseColor);
+        }
+
+        /// <summary>
+        /// Generic Implementation of child node drawing
+        /// </summary>
+        /// <param name="keyOutcome"></param>
+        /// <param name="ellipseNodeX1"></param>
+        /// <param name="ellipseNodeY1"></param>
+        /// <param name="ellipseNodeX2"></param>
+        /// <param name="ellipseNodeY2"></param>
+        /// <param name="ellipseColor"></param>
+        private void DrawEllipse(Outcome keyOutcome, double ellipseNodeX1, double ellipseNodeY1, double ellipseNodeX2,
+            double ellipseNodeY2, string ellipseColor)
+        {
+            var node = ActivePage.DrawOval(ellipseNodeX1, ellipseNodeY1, ellipseNodeX2, ellipseNodeY2);
+            node.CellsU["Fillforegnd"].FormulaU = ellipseColor;
+
+            if (keyOutcome != null && !string.IsNullOrEmpty(keyOutcome.title))
+            {
+                node.Text = keyOutcome.title;
+            }
+
+            if (keyOutcome != null && !string.IsNullOrEmpty(keyOutcome.contentUrl))
+            {
+                var nodeHyperlink = node.AddHyperlink();
+                nodeHyperlink.Address = keyOutcome.contentUrl;
+            }
         }
     }
 }
