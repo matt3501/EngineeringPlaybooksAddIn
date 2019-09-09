@@ -64,7 +64,7 @@ namespace EngineeringPlaybooksAddIn
             object fun = JsonConvert.DeserializeObject(textResult);
 
             JciPlaybooksDrawingController eng = new JciPlaybooksDrawingController();
-            eng.DrawPlaybookJson(textResult);
+            eng.DrawPlaybook(textResult);
         }
     }
 }
