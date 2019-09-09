@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
 using EngineeringPlaybooksAddIn.Models;
@@ -24,7 +25,7 @@ namespace EngineeringPlaybooksAddIn.Controllers
         private static double ARC_ACCURACY = 0.01;//10%
 
         private static Point ellipseCenter = new Point(0, 0);
-        public static List<Point> GetPointsForEllipse(double ellipseMajorRadius, double ellipseMinorRadius, int equilateralSides, RotationStarts atWhichAxis)
+        public static List<Point> GetPointsForEllipse(double ellipseMajorRadius, double ellipseMinorRadius, int equilateralSides, RotationStarts atWhichAxis, double xOffsetAngleRadians)
         {
             if (atWhichAxis == RotationStarts.RotationStartsAtAxisY)
             {
@@ -47,7 +48,7 @@ namespace EngineeringPlaybooksAddIn.Controllers
             double arcLength = circumference / equilateralSides;
             //double arcLength = 0.1;
 
-            double angle = 0;
+            double angle = xOffsetAngleRadians;
 
             // Loop until we get all the points out of the ellipse
             for (int numPoints = 0; numPoints < circumference / arcLength; numPoints++)
@@ -130,5 +131,35 @@ namespace EngineeringPlaybooksAddIn.Controllers
             // Scale the value of distance
             return distance * angleSeg;
         }
+
+        public static double GetDegreesBetweenVector(Point vector1, Point vector2)
+        {
+            var X1 = vector1.X;
+            var Y1 = vector1.Y;
+            var X2 = vector2.X;
+            var Y2 = vector2.Y;
+
+            var t1 = (X1 * X2) + (Y1 * Y2);
+            var t2 = (X1 * X1) + (Y1 * Y1);
+            var s1 = Math.Sqrt(t2);
+            var t3 = (X2 * X2) + (Y2 * Y2);
+            var s2 = Math.Sqrt(t3);
+            var af = t1 / (s1 * s2);
+            var inv = Math.Acos(af) * 360 / (Math.PI * 2);
+
+            var angleBetween = (Math.Round(100 * inv) / 100);
+
+            return angleBetween;
+        }
+
+        //public Vector2 GetNormalAt(Point intersection)
+        //{
+        //    var vectorX = (float)(intersection.X - ellipseCenter.X);
+        //    var vectorY = (float)((intersection.Y - ellipseCenter.Y) * (_majorRadius / _minorRadius));
+        //    var perpendicularVector = new Vector2(vectorX, vectorY);
+
+        //    var normalVector = Vector2.Normalize(perpendicularVector);
+        //    return normalVector;
+        //}
     }
 }

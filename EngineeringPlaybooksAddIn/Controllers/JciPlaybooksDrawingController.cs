@@ -39,6 +39,13 @@ namespace EngineeringPlaybooksAddIn.Controllers
         // ReSharper disable once InconsistentNaming
         private Page ActivePage;
 
+        private readonly Point _yAxisUnitVector;
+
+        public JciPlaybooksDrawingController()
+        {
+            _yAxisUnitVector = new Point(0, 1);
+        }
+
         /// <summary>
         /// public facing method for drawing an Engineering Playbook, use samples/knowledge_WorkflowsBusinessAnalyst.json as a schema example
         /// </summary>
@@ -151,16 +158,26 @@ namespace EngineeringPlaybooksAddIn.Controllers
         {
             var count = model.outcomes.Count;
 
-            var geometry = GeometryController.GetPointsForEllipse(KeyNodeMajorRadius, KeyNodeMinorRadius, count, GeometryController.RotationStarts.RotationStartsAtAxisX);
+            var geometry = GeometryController.GetPointsForEllipse(
+                KeyNodeMajorRadius, 
+                KeyNodeMinorRadius, 
+                count, 
+                GeometryController.RotationStarts.RotationStartsAtAxisX, 
+                0.0);
 
             return geometry.Select((point, index) => new VertexColorPair(Math.Round(point.X, 2), Math.Round(point.Y, 2), JciColors[index])).ToList();
         }
 
-        private List<VertexColorPair> GetEllipseVertices(Outcome outcome)
+        private List<VertexColorPair> GetEllipseVertices(Outcome outcome, double xOffsetAngleRadians)
         {
             var count = outcome.childOutcomes.Count;
 
-            var geometry = GeometryController.GetPointsForEllipse(ChildNodeMajorRadius + .3, ChildNodeMinorRadius + .3, count, GeometryController.RotationStarts.RotationStartsAtAxisX);
+            var geometry = GeometryController.GetPointsForEllipse(
+                ChildNodeMajorRadius + .35,
+                ChildNodeMinorRadius + .35,
+                count, 
+                GeometryController.RotationStarts.RotationStartsAtAxisX, 
+                xOffsetAngleRadians);
 
             return geometry.Select((point, index) => new VertexColorPair(Math.Round(point.X, 2), Math.Round(point.Y, 2), JciColors[index])).ToList();
         }
@@ -193,7 +210,17 @@ namespace EngineeringPlaybooksAddIn.Controllers
             if (keyOutcome.childOutcomes.Any())
             {
                 DrawKeyOutcomeConnectorAndBulb(vertexColorPair);
-                var ellipseVectors = GetEllipseVertices(keyOutcome);
+
+                var perpendicularVector = new Point(vertexColorPair.Y * (KeyNodeMinorRadius/ KeyNodeMajorRadius), -vertexColorPair.X / (KeyNodeMinorRadius / KeyNodeMajorRadius));
+                var xOffsetAngleDegrees = GeometryController.GetDegreesBetweenVector(_yAxisUnitVector, perpendicularVector);
+                var xOffsetAngleRadians = xOffsetAngleDegrees * (Math.PI / 180);
+
+                if (keyOutcome.childOutcomes.Count > 2)
+                {
+                    xOffsetAngleRadians = XOffsetAngleRadians(keyOutcome, xOffsetAngleRadians);
+                }
+
+                var ellipseVectors = GetEllipseVertices(keyOutcome, xOffsetAngleRadians);
                 for (var index = 0; index < keyOutcome.childOutcomes.Count; index++)
                 {
                     var keyOutcomeChildOutcome = keyOutcome.childOutcomes[index];
@@ -208,6 +235,16 @@ namespace EngineeringPlaybooksAddIn.Controllers
                     DrawEllipse(keyOutcomeChildOutcome, insideEllipseNodeX1, insideEllipseNodeY1, insideEllipseNodeX2, insideEllipseNodeY2, insideEllipseColor);
                 }
             }
+        }
+
+        private static double XOffsetAngleRadians(Outcome keyOutcome, double xOffsetAngleRadians)
+        {
+//Offset all nodes by half so that the 'key outcome' doesn't overlap
+            var oneSliceOfPie = 1.0 / keyOutcome.childOutcomes.Count;
+            var halfSliceOfPie = 1.0 / 2.0 * oneSliceOfPie;
+            var radiansInOneCircle = 2.0 * Math.PI;
+            xOffsetAngleRadians += halfSliceOfPie * radiansInOneCircle;
+            return xOffsetAngleRadians;
         }
 
         private void DrawKeyOutcomeConnectorAndBulb(VertexColorPair vertexColorPair)
