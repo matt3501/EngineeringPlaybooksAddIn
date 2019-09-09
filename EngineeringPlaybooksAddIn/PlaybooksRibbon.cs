@@ -5,7 +5,8 @@ using System.Linq;
 using System.Security;
 using System.Text;
 using System.Windows.Forms;
-using EngineeringPlaybooksAddIn.Engines;
+using EngineeringPlaybooksAddIn.Controllers;
+using EngineeringPlaybooksAddIn.Resources;
 using Microsoft.Office.Tools.Ribbon;
 using Newtonsoft.Json;
 
@@ -62,7 +63,7 @@ namespace EngineeringPlaybooksAddIn
         {
             object fun = JsonConvert.DeserializeObject(textResult);
 
-            JciPlaybooksDrawingEngine eng = new JciPlaybooksDrawingEngine();
+            JciPlaybooksDrawingController eng = new JciPlaybooksDrawingController();
             eng.DrawPlaybookJson(textResult);
         }
     }

@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace EngineeringPlaybooksAddIn {
+namespace EngineeringPlaybooksAddIn.Resources {
     using System;
     
     
@@ -39,7 +39,7 @@ namespace EngineeringPlaybooksAddIn {
         internal static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
-                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("EngineeringPlaybooksAddIn.FormsResource", typeof(FormsResource).Assembly);
+                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("EngineeringPlaybooksAddIn.Resources.FormsResource", typeof(FormsResource).Assembly);
                     resourceMan = temp;
                 }
                 return resourceMan;

@@ -1,14 +1,33 @@
-﻿using System.Collections.Generic;
-using System.Drawing;
+﻿using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Linq;
 using EngineeringPlaybooksAddIn.Models;
 using Microsoft.Office.Interop.Visio;
 using Newtonsoft.Json;
 using Color = EngineeringPlaybooksAddIn.Models.Color;
 
-namespace EngineeringPlaybooksAddIn.Engines
+namespace EngineeringPlaybooksAddIn.Controllers
 {
-    public class JciPlaybooksDrawingEngine
+    public class JciPlaybooksDrawingController
     {
+        private const double MajorRadius = 1.5375;
+        private const double MinorRadius = 1.2775;
+        private static readonly IList<Color> JciColors = new ReadOnlyCollection<Color>(new List<Color>()
+        {
+            new Color(0, 128, 182),
+            new Color(0, 183, 168),
+            new Color(106, 193, 123),
+            new Color(214, 213, 37),
+            new Color(254, 189, 56),
+            new Color(244, 119, 33),
+            new Color(203, 36, 57),
+        });
+
+        /// <summary>
+        /// Allows the calling into ActivePage similar to the syntax used by traditional VB6 macros
+        /// </summary>
+        // ReSharper disable once InconsistentNaming
         private Page ActivePage;
 
         public void DrawPlaybookJson(string textResult)
@@ -85,7 +104,8 @@ namespace EngineeringPlaybooksAddIn.Engines
             var xCenter = 5.2875;
             var yCenter = 3.9725;
 
-            var coreOval = ActivePage.DrawOval(xCenter - 1.5375, yCenter + 1.2775, xCenter + 1.5375, yCenter - 1.2775);
+
+            var coreOval = ActivePage.DrawOval(xCenter - MajorRadius, yCenter + MinorRadius, xCenter + MajorRadius, yCenter - MinorRadius);
             coreOval.CellsU["Fillforegnd"].FormulaU = "RGB(248, 248, 248)";
             coreOval.Text = "Key Outcomes";
 
@@ -103,22 +123,17 @@ namespace EngineeringPlaybooksAddIn.Engines
         {
             var count = model.outcomes.Count;
 
-            var vertexColorPairs = new List<VertexColorPair>
-            {
-                new VertexColorPair(0.7125, 1.2275 ,new Color {R = 255, G = 176, B = 201} ),
-                new VertexColorPair(-0.5875,1.6275 , new Color {R = 72,  G = 172, B = 198} ),
-                new VertexColorPair(1.0125, 0.0275 ,new Color {R = 204, G = 196, B = 100} ),
-                new VertexColorPair(-0.5875,-0.7725,  new Color {R = 179, G = 172, B = 96 } ),
-                new VertexColorPair(-2.0375,-0.1025,  new Color {R = 150, G = 232, B = 255} ),
-                new VertexColorPair(-2.0375,1.0275 , new Color {R = 255, G = 244, B = 112} )
-            };
+            var geometry = GeometryController.GetPointsForEllipse(MajorRadius, MinorRadius, count, GeometryController.RotationStarts.RotationStartsAtAxisX);
 
-            return vertexColorPairs;
+            return geometry.Select((point, index) => new VertexColorPair(Math.Round(point.X, 2), Math.Round(point.Y, 2), JciColors[index])).ToList();
         }
 
-        public void DrawChildNode(string nodeText, double xpos, double ypos, Color color, string nodeUrl)
+        public void DrawChildNode(string nodeText, double xCenter, double yCenter, Color color, string nodeUrl)
         {
-            var node = ActivePage.DrawOval(xpos, ypos, xpos + 1.064, ypos - 0.884);
+            var childNodeMajorRadius = 0.532;
+            var childNodeMinorRadius = 0.442;
+
+            var node = ActivePage.DrawOval(xCenter - childNodeMajorRadius, yCenter + childNodeMinorRadius, xCenter + childNodeMajorRadius, yCenter - childNodeMinorRadius);
             node.CellsU["Fillforegnd"].FormulaU = "RGB(" + color.R + ", " + color.G + ", " + color.B + ")";
             node.Text = nodeText;
 

@@ -156,13 +156,15 @@
     can be found.
   -->
   <ItemGroup>
-    <Compile Include="Engines\JciPlaybooksDrawingEngine.cs" />
-    <Compile Include="FormListShapes.cs">
+    <Compile Include="Controllers\GeometryController.cs" />
+    <Compile Include="Controllers\JciPlaybooksDrawingController.cs" />
+    <Compile Include="View\FormListShapes.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="FormListShapes.Designer.cs">
+    <Compile Include="View\FormListShapes.Designer.cs">
       <DependentUpon>FormListShapes.cs</DependentUpon>
     </Compile>
+    <Compile Include="Models\Point.cs" />
     <Compile Include="Models\VertexColorPair.cs" />
     <Compile Include="Models\Color.cs" />
     <Compile Include="Models\KnowledgeModel.cs" />
@@ -176,7 +178,7 @@
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>
-    <EmbeddedResource Include="FormListShapes.resx">
+    <EmbeddedResource Include="View\FormListShapes.resx">
       <DependentUpon>FormListShapes.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="PlaybooksRibbon.resx">
@@ -191,7 +193,7 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
-    <EmbeddedResource Include="FormsResource.resx">
+    <EmbeddedResource Include="Resources\FormsResource.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>FormsResource.Designer.cs</LastGenOutput>
     </EmbeddedResource>
@@ -204,7 +206,7 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>Settings.settings</DependentUpon>
     </Compile>
-    <Compile Include="FormsResource.Designer.cs">
+    <Compile Include="Resources\FormsResource.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
       <DependentUpon>FormsResource.resx</DependentUpon>
@@ -220,6 +222,7 @@
     </Compile>
     <AppDesigner Include="Properties\" />
   </ItemGroup>
+  <ItemGroup />
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
     <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>
