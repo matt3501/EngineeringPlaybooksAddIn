@@ -11,26 +11,28 @@ namespace EngineeringPlaybooksAddIn.Controllers
 {
     public class JciPlaybooksDrawingController
     {
+        //    private const double XCenter = 5.5;
+        //    private const double YCenter = 3.53125;
         private const double XCenter = 5.2875;
-        private const double YCenter = 3.9725;
+        private const double YCenter = 3.72;
         private const double KeyNodeMajorRadius = 1.5375;
         private const double KeyNodeMinorRadius = 1.2775;
         private const double ChildNodeMajorRadius = 0.532;
         private const double ChildNodeMinorRadius = 0.442;
-        private const string EllipseColor = "RGB(248, 248, 248)";
+        private const string DefaultEllipseColor = "RGB(248, 248, 248)";
 
         /// <summary>
         /// These colors have been sourced from https://my.jci.com/brand-center/Resources/Johnson%20Controls%20brand%20guidelines_January%202018_v2.2.pdf
         /// </summary>
         private static readonly IList<Color> JciColors = new ReadOnlyCollection<Color>(new List<Color>()
         {
-            new Color(0, 128, 182),//Secondary JCI Blue, HEX = 0080B6
-            new Color(0, 183, 168),//Secondary JCI Aqua, HEX = 00B7A8
-            new Color(106, 193, 123),//Secondary JCI Green, HEX = 6AC07A
-            new Color(214, 213, 37),//Secondary JCI Yellow, HEX = D5D537
-            new Color(254, 189, 56),//Secondary JCI Orange, HEX = FDBC38
-            new Color(244, 119, 33),//Secondary JCI Burnt Orange, HEX = F37720
-            new Color(203, 36, 57),//Secondary JCI Red, HEX = CA2339
+            new Color(0, 128, 182), //Secondary JCI Blue, HEX = 0080B6
+            new Color(0, 183, 168), //Secondary JCI Aqua, HEX = 00B7A8
+            new Color(106, 193, 123), //Secondary JCI Green, HEX = 6AC07A
+            new Color(214, 213, 37), //Secondary JCI Yellow, HEX = D5D537
+            new Color(254, 189, 56), //Secondary JCI Orange, HEX = FDBC38
+            new Color(244, 119, 33), //Secondary JCI Burnt Orange, HEX = F37720
+            new Color(203, 36, 57), //Secondary JCI Red, HEX = CA2339
         });
 
         /// <summary>
@@ -54,9 +56,9 @@ namespace EngineeringPlaybooksAddIn.Controllers
         {
             ActivePage = Globals.ThisAddIn.Application.ActivePage;
 
-            var model = JsonConvert.DeserializeObject<KnowledgeModel>(jsonText);
-
             SetOrientationToLandscape();
+
+            var model = JsonConvert.DeserializeObject<KnowledgeModel>(jsonText);
 
             DrawHeader(model);
 
@@ -73,7 +75,7 @@ namespace EngineeringPlaybooksAddIn.Controllers
             var title = ActivePage.DrawRectangle(1.25, 8.25, 10.75, 7.9);
             title.LineStyle = "Guide";
             title.Text = model.title;
-
+            title.Characters.CharProps[(short) VisCellIndices.visCharacterStyle] = (short) tagVisCellVals.visBold;
 
             var description = ActivePage.DrawRectangle(1.25, 7.9, 10.75, 7.133);
             description.LineStyle = "Guide";
@@ -86,12 +88,15 @@ namespace EngineeringPlaybooksAddIn.Controllers
             var headRadius = 0.171875;
 
             var userCenterX = .75;
-            var userHead = ActivePage.DrawOval(userCenterX-headRadius, 7.75+headRadius, userCenterX + headRadius, 7.75 - headRadius);
+            var userHead = ActivePage.DrawOval(userCenterX - headRadius, 7.75 + headRadius, userCenterX + headRadius,
+                7.75 - headRadius);
             userHead.CellsU["Fillforegnd"].FormulaU = "RGB(255, 255, 255)";
-            userHead.CellsSRC[(short)VisSectionIndices.visSectionObject, (short) VisRowIndices.visRowLine, (short)VisCellIndices.visLineWeight].FormulaForce = "3pt";
+            userHead.CellsSRC[(short) VisSectionIndices.visSectionObject, (short) VisRowIndices.visRowLine,
+                (short) VisCellIndices.visLineWeight].FormulaForce = "3pt";
 
             var userBody = ActivePage.DrawCircularArc(userCenterX, 7.0, .5, 0.78541, 2.356);
-            userBody.CellsSRC[(short)VisSectionIndices.visSectionObject, (short)VisRowIndices.visRowLine, (short)VisCellIndices.visLineWeight].FormulaForce = "3pt";
+            userBody.CellsSRC[(short) VisSectionIndices.visSectionObject, (short) VisRowIndices.visRowLine,
+                (short) VisCellIndices.visLineWeight].FormulaForce = "3pt";
 
             description.CellsSRC[(short) VisSectionIndices.visSectionParagraph, 0,
                 (short) VisCellIndices.visHorzAlign].FormulaU = "0";
@@ -137,9 +142,12 @@ namespace EngineeringPlaybooksAddIn.Controllers
         {
             var ellipseVectors = GetEllipseVertices(model);
 
-            var coreOval = ActivePage.DrawOval(XCenter - KeyNodeMajorRadius, YCenter + KeyNodeMinorRadius, XCenter + KeyNodeMajorRadius, YCenter - KeyNodeMinorRadius);
-            coreOval.CellsU["Fillforegnd"].FormulaU = EllipseColor;
+            var coreOval = ActivePage.DrawOval(XCenter - KeyNodeMajorRadius, YCenter + KeyNodeMinorRadius,
+                XCenter + KeyNodeMajorRadius, YCenter - KeyNodeMinorRadius);
+            coreOval.CellsU["Fillforegnd"].FormulaU = DefaultEllipseColor;
             coreOval.Text = "Key Outcomes";
+            coreOval.Cells["Char.Size"].FormulaU = "16 pt";
+            coreOval.Characters.CharProps[(short) VisCellIndices.visCharacterStyle] = (short) tagVisCellVals.visBold;
 
             for (var index = 0; index < model.outcomes.Count; index++)
             {
@@ -148,7 +156,7 @@ namespace EngineeringPlaybooksAddIn.Controllers
                 DrawKeyOutcomeChildNode(keyOutcome, vertexColorPair, XCenter, YCenter);
             }
         }
-        
+
         /// <summary>
         /// Queries for the geometric vectors and node colors for each json 'outcome'
         /// </summary>
@@ -159,13 +167,14 @@ namespace EngineeringPlaybooksAddIn.Controllers
             var count = model.outcomes.Count;
 
             var geometry = GeometryController.GetPointsForEllipse(
-                KeyNodeMajorRadius, 
-                KeyNodeMinorRadius, 
-                count, 
-                GeometryController.RotationStarts.RotationStartsAtAxisX, 
+                KeyNodeMajorRadius,
+                KeyNodeMinorRadius,
+                count,
+                GeometryController.RotationStarts.RotationStartsAtAxisX,
                 0.0);
 
-            return geometry.Select((point, index) => new VertexColorPair(Math.Round(point.X, 2), Math.Round(point.Y, 2), JciColors[index])).ToList();
+            return geometry.Select((point, index) =>
+                new VertexColorPair(Math.Round(point.X, 2), Math.Round(point.Y, 2), JciColors[index])).ToList();
         }
 
         private List<VertexColorPair> GetEllipseVertices(Outcome outcome, double xOffsetAngleRadians)
@@ -173,13 +182,14 @@ namespace EngineeringPlaybooksAddIn.Controllers
             var count = outcome.childOutcomes.Count;
 
             var geometry = GeometryController.GetPointsForEllipse(
-                ChildNodeMajorRadius + .35,
-                ChildNodeMinorRadius + .35,
-                count, 
-                GeometryController.RotationStarts.RotationStartsAtAxisX, 
+                ChildNodeMajorRadius + (.085 * count),
+                ChildNodeMinorRadius + (.085 * count),
+                count,
+                GeometryController.RotationStarts.RotationStartsAtAxisX,
                 xOffsetAngleRadians);
 
-            return geometry.Select((point, index) => new VertexColorPair(Math.Round(point.X, 2), Math.Round(point.Y, 2), JciColors[index])).ToList();
+            return geometry.Select((point, index) =>
+                new VertexColorPair(Math.Round(point.X, 2), Math.Round(point.Y, 2), JciColors[index])).ToList();
         }
 
         /// <summary>
@@ -201,45 +211,78 @@ namespace EngineeringPlaybooksAddIn.Controllers
             var ellipseColor = "RGB(" + vertexColorPair.Color.R + ", " + vertexColorPair.Color.G + ", " +
                                vertexColorPair.Color.B + ")";
 
-            var newBulbCenterX = XCenter + 2 * vertexColorPair.X;
-            var newBulbCenterY = YCenter + 2 * vertexColorPair.Y;
-
-
             DrawEllipse(keyOutcome, ellipseNodeX1, ellipseNodeY1, ellipseNodeX2, ellipseNodeY2, ellipseColor);
 
-            if (keyOutcome.childOutcomes.Any())
+            if (!keyOutcome.childOutcomes.Any()) return;
+
+            DrawBranch(keyOutcome, vertexColorPair);
+        }
+
+        /// <summary>
+        /// Assumes there is at least one child outcome
+        /// </summary>
+        /// <param name="keyOutcome"></param>
+        /// <param name="vertexColorPair"></param>
+        private void DrawBranch(Outcome keyOutcome, VertexColorPair vertexColorPair)
+        {
+            if (!keyOutcome.childOutcomes.Any()) return;
+
+            double vectorAddendX = 0;
+            if (keyOutcome.childOutcomes.Count > 2)
             {
-                DrawKeyOutcomeConnectorAndBulb(vertexColorPair);
-
-                var perpendicularVector = new Point(vertexColorPair.Y * (KeyNodeMinorRadius/ KeyNodeMajorRadius), -vertexColorPair.X / (KeyNodeMinorRadius / KeyNodeMajorRadius));
-                var xOffsetAngleDegrees = GeometryController.GetDegreesBetweenVector(_yAxisUnitVector, perpendicularVector);
-                var xOffsetAngleRadians = xOffsetAngleDegrees * (Math.PI / 180);
-
-                if (keyOutcome.childOutcomes.Count > 2)
-                {
-                    xOffsetAngleRadians = XOffsetAngleRadians(keyOutcome, xOffsetAngleRadians);
-                }
-
-                var ellipseVectors = GetEllipseVertices(keyOutcome, xOffsetAngleRadians);
-                for (var index = 0; index < keyOutcome.childOutcomes.Count; index++)
-                {
-                    var keyOutcomeChildOutcome = keyOutcome.childOutcomes[index];
-                    var keyOutcomeChildVector = ellipseVectors[index];
-
-                    var insideEllipseNodeX1 = newBulbCenterX + keyOutcomeChildVector.X - ChildNodeMajorRadius;
-                    var insideEllipseNodeY1 = newBulbCenterY + keyOutcomeChildVector.Y + ChildNodeMinorRadius;
-                    var insideEllipseNodeX2 = newBulbCenterX + keyOutcomeChildVector.X + ChildNodeMajorRadius;
-                    var insideEllipseNodeY2 = newBulbCenterY + keyOutcomeChildVector.Y - ChildNodeMinorRadius;
-                    var insideEllipseColor = EllipseColor;
-
-                    DrawEllipse(keyOutcomeChildOutcome, insideEllipseNodeX1, insideEllipseNodeY1, insideEllipseNodeX2, insideEllipseNodeY2, insideEllipseColor);
-                }
+                var tempVectorCopy = (vertexColorPair.X > 0) ? ChildNodeMajorRadius : -ChildNodeMajorRadius;
+                vectorAddendX = ((keyOutcome.childOutcomes.Count - 2) * .5) * tempVectorCopy;
             }
+
+            var vectorOffsetX = (2 * vertexColorPair.X) + vectorAddendX;
+            var vectorOffsetY = 2 * vertexColorPair.Y;
+            var bulbCenterX = XCenter + vectorOffsetX;
+            var bulbCenterY = YCenter + vectorOffsetY;
+
+            DrawKeyOutcomeConnectorAndBulb(vertexColorPair, bulbCenterX, bulbCenterY);
+
+            var xOffsetAngleRadians = GetOffsetAngleRadians(keyOutcome, vertexColorPair);
+
+            var ellipseVectors = GetEllipseVertices(keyOutcome, xOffsetAngleRadians);
+            for (var index = 0; index < keyOutcome.childOutcomes.Count; index++)
+            {
+                var keyOutcomeChildOutcome = keyOutcome.childOutcomes[index];
+                var keyOutcomeChildVector = ellipseVectors[index];
+
+                var insideEllipseNodeX1 = bulbCenterX + keyOutcomeChildVector.X - ChildNodeMajorRadius;
+                var insideEllipseNodeY1 = bulbCenterY + keyOutcomeChildVector.Y + ChildNodeMinorRadius;
+                var insideEllipseNodeX2 = bulbCenterX + keyOutcomeChildVector.X + ChildNodeMajorRadius;
+                var insideEllipseNodeY2 = bulbCenterY + keyOutcomeChildVector.Y - ChildNodeMinorRadius;
+                var insideEllipseColor = DefaultEllipseColor;
+
+                DrawEllipse(keyOutcomeChildOutcome, insideEllipseNodeX1, insideEllipseNodeY1, insideEllipseNodeX2,
+                    insideEllipseNodeY2, insideEllipseColor);
+            }
+        }
+
+        private double GetOffsetAngleRadians(Outcome keyOutcome, VertexColorPair vertexColorPair)
+        {
+            var perpendicularVector = new Point(vertexColorPair.Y * (KeyNodeMinorRadius / KeyNodeMajorRadius),
+                -vertexColorPair.X / (KeyNodeMinorRadius / KeyNodeMajorRadius));
+            var xOffsetAngleDegrees = GeometryController.GetDegreesBetweenVector(_yAxisUnitVector, perpendicularVector);
+            var xOffsetAngleRadians = xOffsetAngleDegrees * (Math.PI / 180);
+
+            if (keyOutcome.childOutcomes.Count > 2)
+            {
+                xOffsetAngleRadians = XOffsetAngleRadians(keyOutcome, xOffsetAngleRadians);
+            }
+            else if (keyOutcome.childOutcomes.Count > 4)
+            {
+                xOffsetAngleRadians = 0;
+            }
+
+            //return 0;
+            return xOffsetAngleRadians;
         }
 
         private static double XOffsetAngleRadians(Outcome keyOutcome, double xOffsetAngleRadians)
         {
-//Offset all nodes by half so that the 'key outcome' doesn't overlap
+            //Offset all nodes by half so that the 'key outcome' doesn't overlap
             var oneSliceOfPie = 1.0 / keyOutcome.childOutcomes.Count;
             var halfSliceOfPie = 1.0 / 2.0 * oneSliceOfPie;
             var radiansInOneCircle = 2.0 * Math.PI;
@@ -247,17 +290,17 @@ namespace EngineeringPlaybooksAddIn.Controllers
             return xOffsetAngleRadians;
         }
 
-        private void DrawKeyOutcomeConnectorAndBulb(VertexColorPair vertexColorPair)
+        private void DrawKeyOutcomeConnectorAndBulb(VertexColorPair vertexColorPair, double bulbCenterX,
+            double bulbCenterY)
         {
-            var newBulbCenterX = XCenter + 2 * vertexColorPair.X;
-            var newBulbCenterY = YCenter + 2 * vertexColorPair.Y;
-            var connectorLine = ActivePage.DrawLine(XCenter + vertexColorPair.X, YCenter + vertexColorPair.Y, newBulbCenterX, newBulbCenterY);
+            var connectorLine = ActivePage.DrawLine(XCenter + vertexColorPair.X, YCenter + vertexColorPair.Y,
+                bulbCenterX, bulbCenterY);
             connectorLine.SendToBack();
 
-            var ellipseNodeX1 = newBulbCenterX - ChildNodeMajorRadius;
-            var ellipseNodeY1 = newBulbCenterY + ChildNodeMinorRadius;
-            var ellipseNodeX2 = newBulbCenterX + ChildNodeMajorRadius;
-            var ellipseNodeY2 = newBulbCenterY - ChildNodeMinorRadius;
+            var ellipseNodeX1 = bulbCenterX - ChildNodeMajorRadius;
+            var ellipseNodeY1 = bulbCenterY + ChildNodeMinorRadius;
+            var ellipseNodeX2 = bulbCenterX + ChildNodeMajorRadius;
+            var ellipseNodeY2 = bulbCenterY - ChildNodeMinorRadius;
             var ellipseColor = "RGB(" + vertexColorPair.Color.R + ", " + vertexColorPair.Color.G + ", " +
                                vertexColorPair.Color.B + ")";
 
@@ -281,7 +324,11 @@ namespace EngineeringPlaybooksAddIn.Controllers
 
             if (keyOutcome != null && !string.IsNullOrEmpty(keyOutcome.title))
             {
-                node.Text = keyOutcome.title;
+                var keyOutcomeTitle = keyOutcome.title;
+                node.Text = keyOutcomeTitle;
+                var cellFontSizePt = CalculateSizeFontForChildNodeFromText(keyOutcomeTitle);
+
+                node.Cells["Char.Size"].FormulaU = $"{cellFontSizePt} pt";
             }
 
             if (keyOutcome != null && !string.IsNullOrEmpty(keyOutcome.contentUrl))
@@ -289,6 +336,58 @@ namespace EngineeringPlaybooksAddIn.Controllers
                 var nodeHyperlink = node.AddHyperlink();
                 nodeHyperlink.Address = keyOutcome.contentUrl;
             }
+        }
+
+        private static int CalculateSizeFontForChildNodeFromText(string keyOutcomeTitle)
+        {
+            var textLength = keyOutcomeTitle.Length;
+            var firstWordLength = keyOutcomeTitle.Substring(0, keyOutcomeTitle.IndexOf(" ", StringComparison.Ordinal))
+                .Length;
+            var lastWordLength =
+                keyOutcomeTitle.Substring(0, keyOutcomeTitle.LastIndexOf(" ", StringComparison.Ordinal)).Length;
+
+            var edgeLength = (firstWordLength > lastWordLength) ? firstWordLength : lastWordLength;
+
+            var cellFontSizePt = 12;
+
+            if (edgeLength > 11)
+            {
+                cellFontSizePt -= 1;
+            }
+
+            if (textLength > 33)
+            {
+                cellFontSizePt = 11;
+                if (edgeLength > 11)
+                {
+                    cellFontSizePt -= 1;
+                }
+            }
+            else if (textLength > 43)
+            {
+                cellFontSizePt = 10;
+                if (edgeLength > 10)
+                {
+                    cellFontSizePt -= 1;
+                }
+            }
+            else if (textLength > 54)
+            {
+                cellFontSizePt = 9;
+                if (edgeLength > 8)
+                {
+                    cellFontSizePt -= 1;
+                }
+                else if (edgeLength > 10)
+                {
+                    cellFontSizePt -= 2;
+                }
+            }
+
+
+            
+
+            return cellFontSizePt;
         }
     }
 }

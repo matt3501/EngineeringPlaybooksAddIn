@@ -42,13 +42,12 @@ namespace EngineeringPlaybooksAddIn.Controllers
             List<Point> points = new List<Point>();
 
             // Distance in radians between angles measured on the ellipse
-            double deltaAngle = 0.001;
+            double deltaAngle = 0.0005;
             double circumference = GetLengthOfEllipse(deltaAngle);
 
             double arcLength = circumference / equilateralSides;
-            //double arcLength = 0.1;
 
-            double angle = xOffsetAngleRadians;
+            double angle = xOffsetAngleRadians - deltaAngle;
 
             // Loop until we get all the points out of the ellipse
             for (int numPoints = 0; numPoints < circumference / arcLength; numPoints++)
@@ -134,20 +133,15 @@ namespace EngineeringPlaybooksAddIn.Controllers
 
         public static double GetDegreesBetweenVector(Point vector1, Point vector2)
         {
-            var X1 = vector1.X;
-            var Y1 = vector1.Y;
-            var X2 = vector2.X;
-            var Y2 = vector2.Y;
-
-            var t1 = (X1 * X2) + (Y1 * Y2);
-            var t2 = (X1 * X1) + (Y1 * Y1);
+            var t1 = (vector1.X * vector2.X) + (vector1.Y * vector2.Y);
+            var t2 = (vector1.X * vector1.X) + (vector1.Y * vector1.Y);
             var s1 = Math.Sqrt(t2);
-            var t3 = (X2 * X2) + (Y2 * Y2);
+            var t3 = (vector2.X * vector2.X) + (vector2.Y * vector2.Y);
             var s2 = Math.Sqrt(t3);
             var af = t1 / (s1 * s2);
             var inv = Math.Acos(af) * 360 / (Math.PI * 2);
 
-            var angleBetween = (Math.Round(100 * inv) / 100);
+            var angleBetween = Math.Round(inv, 5);
 
             return angleBetween;
         }
