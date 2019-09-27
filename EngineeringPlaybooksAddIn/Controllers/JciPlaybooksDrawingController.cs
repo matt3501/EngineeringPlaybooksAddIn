@@ -58,11 +58,20 @@ namespace EngineeringPlaybooksAddIn.Controllers
 
             SetOrientationToLandscape();
 
-            var model = JsonConvert.DeserializeObject<KnowledgeModel>(jsonText);
+            KnowledgeModel model = ValidateAndTrimModel(jsonText);
 
             DrawHeader(model);
 
             DrawMap(model);
+        }
+
+        protected static KnowledgeModel ValidateAndTrimModel(string jsonText)
+        {
+            var validateAndTrimModel = JsonConvert.DeserializeObject<KnowledgeModel>(jsonText);
+
+
+
+            return validateAndTrimModel;
         }
 
         /// <summary>
@@ -341,10 +350,12 @@ namespace EngineeringPlaybooksAddIn.Controllers
         private static int CalculateSizeFontForChildNodeFromText(string keyOutcomeTitle)
         {
             var textLength = keyOutcomeTitle.Length;
-            var firstWordLength = keyOutcomeTitle.Substring(0, keyOutcomeTitle.IndexOf(" ", StringComparison.Ordinal))
-                .Length;
-            var lastWordLength =
-                keyOutcomeTitle.Substring(0, keyOutcomeTitle.LastIndexOf(" ", StringComparison.Ordinal)).Length;
+            var firstWordLength = keyOutcomeTitle.Contains(" ") 
+                ? keyOutcomeTitle.Substring(0, keyOutcomeTitle.IndexOf(" ", StringComparison.Ordinal)).Length
+                : keyOutcomeTitle.Length;
+            var lastWordLength = keyOutcomeTitle.Contains(" ") 
+                ? keyOutcomeTitle.Substring(keyOutcomeTitle.LastIndexOf(" ", StringComparison.Ordinal), keyOutcomeTitle.Length - keyOutcomeTitle.LastIndexOf(" ", StringComparison.Ordinal)).Length - 1
+                : keyOutcomeTitle.Length;
 
             var edgeLength = (firstWordLength > lastWordLength) ? firstWordLength : lastWordLength;
 
@@ -355,23 +366,8 @@ namespace EngineeringPlaybooksAddIn.Controllers
                 cellFontSizePt -= 1;
             }
 
-            if (textLength > 33)
-            {
-                cellFontSizePt = 11;
-                if (edgeLength > 11)
-                {
-                    cellFontSizePt -= 1;
-                }
-            }
-            else if (textLength > 43)
-            {
-                cellFontSizePt = 10;
-                if (edgeLength > 10)
-                {
-                    cellFontSizePt -= 1;
-                }
-            }
-            else if (textLength > 54)
+            
+            if (textLength > 54)
             {
                 cellFontSizePt = 9;
                 if (edgeLength > 8)
@@ -382,10 +378,28 @@ namespace EngineeringPlaybooksAddIn.Controllers
                 {
                     cellFontSizePt -= 2;
                 }
+            } else if (textLength > 43)
+            {
+                cellFontSizePt = 10;
+                if (edgeLength > 8)
+                {
+                    cellFontSizePt -= 1;
+                }
+                else if (edgeLength > 10)
+                {
+                    cellFontSizePt -= 2;
+                }
+            } else if (textLength > 33)
+            {
+                cellFontSizePt = 11;
+                if (edgeLength > 11)
+                {
+                    cellFontSizePt -= 1;
+                }
             }
 
 
-            
+
 
             return cellFontSizePt;
         }

@@ -46,14 +46,20 @@ namespace EngineeringPlaybooksAddIn
         private string ParseFileForPlaybookJson()
         {
             string textResult = null;
+            StreamReader sr = null;
             try
             {
-                var sr = new StreamReader(_openFileDialog.FileName);
+                sr = new StreamReader(_openFileDialog.FileName);
                 textResult = sr.ReadToEnd();
+
             }
             catch (SecurityException ex)
             {
                 MessageBox.Show(string.Format(FormsResource.OpenFileParseError, ex.Message, ex.StackTrace));
+            }
+            finally
+            {
+                sr?.Close();
             }
 
             return textResult;

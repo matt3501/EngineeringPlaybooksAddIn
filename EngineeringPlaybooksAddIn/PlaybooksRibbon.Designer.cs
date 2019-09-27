@@ -37,7 +37,6 @@
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(PlaybooksRibbon));
             this.tab1 = this.Factory.CreateRibbonTab();
             this.jciPlaybooksGroup = this.Factory.CreateRibbonGroup();
-            this.btnListShapes = this.Factory.CreateRibbonButton();
             this.drawPlaybooksButton = this.Factory.CreateRibbonButton();
             this.tab1.SuspendLayout();
             this.jciPlaybooksGroup.SuspendLayout();
@@ -52,18 +51,9 @@
             // 
             // jciPlaybooksGroup
             // 
-            this.jciPlaybooksGroup.Items.Add(this.btnListShapes);
             this.jciPlaybooksGroup.Items.Add(this.drawPlaybooksButton);
             this.jciPlaybooksGroup.Label = "JCI Playbooks";
             this.jciPlaybooksGroup.Name = "jciPlaybooksGroup";
-            // 
-            // btnListShapes
-            // 
-            this.btnListShapes.Image = ((System.Drawing.Image)(resources.GetObject("btnListShapes.Image")));
-            this.btnListShapes.Label = "Page Properties";
-            this.btnListShapes.Name = "btnListShapes";
-            this.btnListShapes.ShowImage = true;
-            this.btnListShapes.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.BtnListShapes_Click);
             // 
             // drawPlaybooksButton
             // 
@@ -91,7 +81,6 @@
 
         internal Microsoft.Office.Tools.Ribbon.RibbonTab tab1;
         internal Microsoft.Office.Tools.Ribbon.RibbonGroup jciPlaybooksGroup;
-        internal Microsoft.Office.Tools.Ribbon.RibbonButton btnListShapes;
         internal Microsoft.Office.Tools.Ribbon.RibbonButton drawPlaybooksButton;
     }
 

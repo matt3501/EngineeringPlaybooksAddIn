@@ -1,0 +1,80 @@
+{
+  "title": "Johnson Controls Workflows Team Software Engineer II",
+  "description": "Software Engineer responsibilities include gathering user requirements, defining system functionality and writing code in various languages, like .NET programming languages (e.g. C++ or JavaScript) Our ideal candidates are familiar with the software development life cycle (SDLC) from preliminary system analysis to tests and deployment. Ultimately, the role of the Software Engineer is to build high-quality, innovative and fully performing software that complies with coding standards and technical design.",
+  "outcomes": [
+    {
+      "title": "Onboarding",
+      "contentUrl": "",
+      "childOutcomes": [
+        {
+          "title": "HR onboarding",
+          "contentUrl": ""
+        },
+        {
+          "title": "Get acquainted with work environment",
+          "contentUrl": ""
+        },
+        {
+          "title": "Workstation Setup/Development environment setup",
+          "contentUrl": ""
+        },
+        {
+          "title": "Have a prepped list of jira stories to start with",
+          "contentUrl": ""
+        },
+        {
+          "title": "Watch solution/project videos",
+          "contentUrl": ""
+        },
+        {
+          "title": "Solution Architecture overview",
+          "contentUrl": ""
+        },
+        {
+          "title": "MSEA/HVAC overview",
+          "contentUrl": ""
+        }
+     ]
+    },
+    {
+      "title": "Contribute to shared code bases",
+      "contentUrl": "",
+      "childOutcomes": [
+        {
+          "title": "Write Unit tests",
+          "contentUrl": ""
+        }
+      ]
+    },
+    {
+      "title": "Software Responsibility",
+      "contentUrl": "",
+      "childOutcomes": [
+        {
+          "title": "Author new Jira Stories",
+          "contentUrl": ""
+        }
+      ]
+    },
+    {
+      "title": "Feature Process Awareness",
+      "contentUrl": "",
+      "childOutcomes": [
+        {
+          "title": "Participate in retrospective meetings",
+          "contentUrl": ""
+        }
+      ]
+    },
+    {
+      "title": "Get Paid",
+      "contentUrl": "",
+      "childOutcomes": [
+        {
+          "title": "Record hours in Daptiv",
+          "contentUrl": ""
+        }
+      ]
+    }
+  ]
+}

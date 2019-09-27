@@ -50,9 +50,9 @@ namespace EngineeringPlaybooksAddIn.Controllers
             double angle = xOffsetAngleRadians - deltaAngle;
 
             // Loop until we get all the points out of the ellipse
-            for (int numPoints = 0; numPoints < circumference / arcLength; numPoints++)
+            for (int numPoints = 0; numPoints < equilateralSides; numPoints++)
             {
-                angle = GetAngleForArcLengthRecursively(0, arcLength, angle, deltaAngle);
+                angle = equilateralSides == 1 ? xOffsetAngleRadians : GetAngleForArcLengthRecursively(0, arcLength, angle, deltaAngle);
 
                 double xCandidate = _majorRadius * Math.Cos(angle);
                 double yCandidate = _minorRadius * Math.Sin(angle);
