@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Text.RegularExpressions;
 using EngineeringPlaybooksAddIn.Models;
 using Microsoft.Office.Interop.Visio;
 using Newtonsoft.Json;
@@ -247,8 +248,9 @@ namespace EngineeringPlaybooksAddIn.Controllers
             var vectorOffsetY = 2 * vertexColorPair.Y;
             var bulbCenterX = XCenter + vectorOffsetX;
             var bulbCenterY = YCenter + vectorOffsetY;
+            var oversizedBulbNode = keyOutcome.childOutcomes.Count > 5;
 
-            DrawKeyOutcomeConnectorAndBulb(vertexColorPair, bulbCenterX, bulbCenterY);
+            DrawKeyOutcomeConnectorAndBulb(vertexColorPair, bulbCenterX, bulbCenterY, oversizedBulbNode);
 
             var xOffsetAngleRadians = GetOffsetAngleRadians(keyOutcome, vertexColorPair);
 
@@ -299,17 +301,28 @@ namespace EngineeringPlaybooksAddIn.Controllers
             return xOffsetAngleRadians;
         }
 
+        /// <summary>
+        /// Creates a connection line and destination bulb (with matching color as key outcome node)
+        ///
+        /// Bulb can be larger if count of nodes extends past the outline of the standard node (usually count > 5 nodes)
+        /// </summary>
+        /// <param name="vertexColorPair"></param>
+        /// <param name="bulbCenterX"></param>
+        /// <param name="bulbCenterY"></param>
+        /// <param name="oversizedBulbNode"></param>
         private void DrawKeyOutcomeConnectorAndBulb(VertexColorPair vertexColorPair, double bulbCenterX,
-            double bulbCenterY)
+            double bulbCenterY, bool oversizedBulbNode)
         {
             var connectorLine = ActivePage.DrawLine(XCenter + vertexColorPair.X, YCenter + vertexColorPair.Y,
                 bulbCenterX, bulbCenterY);
             connectorLine.SendToBack();
 
-            var ellipseNodeX1 = bulbCenterX - ChildNodeMajorRadius;
-            var ellipseNodeY1 = bulbCenterY + ChildNodeMinorRadius;
-            var ellipseNodeX2 = bulbCenterX + ChildNodeMajorRadius;
-            var ellipseNodeY2 = bulbCenterY - ChildNodeMinorRadius;
+            var offset = oversizedBulbNode ? .2 : 0.0;
+
+            var ellipseNodeX1 = bulbCenterX - (ChildNodeMajorRadius + offset);
+            var ellipseNodeY1 = bulbCenterY + (ChildNodeMinorRadius + offset);
+            var ellipseNodeX2 = bulbCenterX + (ChildNodeMajorRadius + offset);
+            var ellipseNodeY2 = bulbCenterY - (ChildNodeMinorRadius + offset);
             var ellipseColor = "RGB(" + vertexColorPair.Color.R + ", " + vertexColorPair.Color.G + ", " +
                                vertexColorPair.Color.B + ")";
 
@@ -331,6 +344,15 @@ namespace EngineeringPlaybooksAddIn.Controllers
             var node = ActivePage.DrawOval(ellipseNodeX1, ellipseNodeY1, ellipseNodeX2, ellipseNodeY2);
             node.CellsU["Fillforegnd"].FormulaU = ellipseColor;
 
+            var shouldInvertTextColors = BackgroundColorIsToDark(ellipseColor);
+
+            if (shouldInvertTextColors)
+            {
+                node.Characters.set_CharProps((short) VisCellIndices.visCharacterColor,
+                    (short)VisDefaultColors.visWhite);
+                //node.CellsU["Chars.Color"].FormulaU = "RGB(255, 255, 255)";
+            } 
+
             if (keyOutcome != null && !string.IsNullOrEmpty(keyOutcome.title))
             {
                 var keyOutcomeTitle = keyOutcome.title;
@@ -347,6 +369,21 @@ namespace EngineeringPlaybooksAddIn.Controllers
             }
         }
 
+        private static bool BackgroundColorIsToDark(string ellipseColor)
+        {
+            ellipseColor = ellipseColor.Replace(" ", "");
+            const string rgbSearchString = @"\d{1,3},\d{1,3},\d{1,3}";
+
+            var match = Regex.Match(ellipseColor, rgbSearchString);
+
+            if (!match.Success) return false;
+
+            var rgbParsed = match.Groups[0].Value;
+            var rgbAverage = rgbParsed.Split(',').Select(int.Parse).Average();
+
+            return rgbAverage < 127;
+        }
+
         private static int CalculateSizeFontForChildNodeFromText(string keyOutcomeTitle)
         {
             var textLength = keyOutcomeTitle.Length;
@@ -361,7 +398,7 @@ namespace EngineeringPlaybooksAddIn.Controllers
 
             var cellFontSizePt = 12;
 
-            if (edgeLength > 11)
+            if (edgeLength > 9)
             {
                 cellFontSizePt -= 1;
             }
@@ -392,7 +429,7 @@ namespace EngineeringPlaybooksAddIn.Controllers
             } else if (textLength > 33)
             {
                 cellFontSizePt = 11;
-                if (edgeLength > 11)
+                if (edgeLength > 9)
                 {
                     cellFontSizePt -= 1;
                 }
