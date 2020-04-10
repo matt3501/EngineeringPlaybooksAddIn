@@ -1,19 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Drawing;
 using System.Linq;
 using System.Text.RegularExpressions;
 using EngineeringPlaybooksAddIn.Models;
 using Microsoft.Office.Interop.Visio;
 using Newtonsoft.Json;
 using Color = EngineeringPlaybooksAddIn.Models.Color;
+using Point = EngineeringPlaybooksAddIn.Models.Point;
 
 namespace EngineeringPlaybooksAddIn.Controllers
 {
     public class JciPlaybooksDrawingController
     {
-        //    private const double XCenter = 5.5;
-        //    private const double YCenter = 3.53125;
         private const double XCenter = 5.2875;
         private const double YCenter = 3.72;
         private const double KeyNodeMajorRadius = 1.5375;
@@ -43,6 +43,7 @@ namespace EngineeringPlaybooksAddIn.Controllers
         private Page ActivePage;
 
         private readonly Point _yAxisUnitVector;
+        private double _doubleTolerance;
 
         public JciPlaybooksDrawingController()
         {
@@ -69,8 +70,6 @@ namespace EngineeringPlaybooksAddIn.Controllers
         protected static KnowledgeModel ValidateAndTrimModel(string jsonText)
         {
             var validateAndTrimModel = JsonConvert.DeserializeObject<KnowledgeModel>(jsonText);
-
-
 
             return validateAndTrimModel;
         }
@@ -118,7 +117,7 @@ namespace EngineeringPlaybooksAddIn.Controllers
         }
 
         /// <summary>
-        ///     Sets the currently open document to landscape (if not already set)
+        /// Sets the currently open document to landscape (if not already set)
         /// </summary>
         private void SetOrientationToLandscape()
         {
@@ -172,34 +171,60 @@ namespace EngineeringPlaybooksAddIn.Controllers
         /// </summary>
         /// <param name="model"></param>
         /// <returns></returns>
-        private List<VertexColorPair> GetEllipseVertices(KnowledgeModel model)
+        protected List<VertexColorPair> GetEllipseVertices(KnowledgeModel model)
         {
-            var count = model.outcomes.Count;
+            var keyOutcomesCount = model.outcomes.Count;
 
-            var geometry = GeometryController.GetPointsForEllipse(
+            double aestheticXOffsetAngleRadians;
+            switch (keyOutcomesCount)
+            {
+                case 2:
+                    aestheticXOffsetAngleRadians = Math.PI / 2;
+                    break;
+                case 4:
+                    aestheticXOffsetAngleRadians = Math.PI / 4;
+                    break;
+                default:
+                    aestheticXOffsetAngleRadians = 0.0;
+                    break;
+            }
+
+            var geometry = EllipseGeometryController.GetPointsForEllipse(
                 KeyNodeMajorRadius,
                 KeyNodeMinorRadius,
-                count,
-                GeometryController.RotationStarts.RotationStartsAtAxisX,
-                0.0);
+                keyOutcomesCount,
+                EllipseGeometryController.RotationStarts.RotationStartsAtAxisX,
+                aestheticXOffsetAngleRadians);
+
+            var aestheticCountFlipSet = new[] {5,7};
+
+            var transformAxis = aestheticCountFlipSet.Contains(keyOutcomesCount);
 
             return geometry.Select((point, index) =>
-                new VertexColorPair(Math.Round(point.X, 2), Math.Round(point.Y, 2), JciColors[index])).ToList();
+                new VertexColorPair(point, JciColors[index], transformAxis)).ToList();
         }
 
-        private List<VertexColorPair> GetEllipseVertices(Outcome outcome, double xOffsetAngleRadians)
+        protected List<VertexColorPair> CalculateEllipseBranchVertices(Outcome outcome, double xOffsetAngleRadians)
         {
             var count = outcome.childOutcomes.Count;
 
-            var geometry = GeometryController.GetPointsForEllipse(
-                ChildNodeMajorRadius + (.085 * count),
-                ChildNodeMinorRadius + (.085 * count),
+            double radiusScalar;
+            if (count < 4)
+                radiusScalar = 0.05;//tighter coupling
+            else if (count == 4)
+                radiusScalar = 0.07;//slightly looser coupling
+            else
+                radiusScalar = 0.085;//farthest coupling
+
+            var geometry = EllipseGeometryController.GetPointsForEllipse(
+                ChildNodeMajorRadius + (radiusScalar * count),
+                ChildNodeMinorRadius + (radiusScalar * count),
                 count,
-                GeometryController.RotationStarts.RotationStartsAtAxisX,
+                EllipseGeometryController.RotationStarts.RotationStartsAtAxisY,
                 xOffsetAngleRadians);
 
             return geometry.Select((point, index) =>
-                new VertexColorPair(Math.Round(point.X, 2), Math.Round(point.Y, 2), JciColors[index])).ToList();
+                new VertexColorPair(point, JciColors[index])).ToList();
         }
 
         /// <summary>
@@ -237,15 +262,27 @@ namespace EngineeringPlaybooksAddIn.Controllers
         {
             if (!keyOutcome.childOutcomes.Any()) return;
 
-            double vectorAddendX = 0;
-            if (keyOutcome.childOutcomes.Count > 2)
+            double vectorAddendX = 0.0;
+            double vectorSubtrahendY = 0.0;
+
+            var vertexX = Math.Round(vertexColorPair.X, 2);
+            var vertexY = Math.Round(vertexColorPair.Y, 2);
+            _doubleTolerance = 0.001;
+            if (keyOutcome.childOutcomes.Count > 3)
             {
-                var tempVectorCopy = (vertexColorPair.X > 0) ? ChildNodeMajorRadius : -ChildNodeMajorRadius;
-                vectorAddendX = ((keyOutcome.childOutcomes.Count - 2) * .5) * tempVectorCopy;
+                var signVector = (vertexX > 0) ? ChildNodeMajorRadius : -ChildNodeMajorRadius;
+                var makeSureDoublesAreZeroScalar = (Math.Abs(vertexX) < _doubleTolerance) ? 0.0 : 1.0;
+                vectorAddendX = ((keyOutcome.childOutcomes.Count - 2) * .5) * signVector * makeSureDoublesAreZeroScalar;
+            }
+            else if (Math.Abs(vertexX) < _doubleTolerance)
+            {
+                var signVector = (vertexY > 0) ? ChildNodeMinorRadius : -ChildNodeMinorRadius;
+                var makeSureDoublesAreZeroScalar = (Math.Abs(vertexY) < _doubleTolerance) ? 0.0 : 1.0;
+                vectorSubtrahendY = (keyOutcome.childOutcomes.Count * .15) * signVector * makeSureDoublesAreZeroScalar;
             }
 
-            var vectorOffsetX = (2 * vertexColorPair.X) + vectorAddendX;
-            var vectorOffsetY = 2 * vertexColorPair.Y;
+            var vectorOffsetX = (2 * vertexX) + vectorAddendX;
+            var vectorOffsetY = (2 * vertexY) - vectorSubtrahendY;
             var bulbCenterX = XCenter + vectorOffsetX;
             var bulbCenterY = YCenter + vectorOffsetY;
             var oversizedBulbNode = keyOutcome.childOutcomes.Count > 5;
@@ -254,7 +291,7 @@ namespace EngineeringPlaybooksAddIn.Controllers
 
             var xOffsetAngleRadians = GetOffsetAngleRadians(keyOutcome, vertexColorPair);
 
-            var ellipseVectors = GetEllipseVertices(keyOutcome, xOffsetAngleRadians);
+            var ellipseVectors = CalculateEllipseBranchVertices(keyOutcome, xOffsetAngleRadians);
             for (var index = 0; index < keyOutcome.childOutcomes.Count; index++)
             {
                 var keyOutcomeChildOutcome = keyOutcome.childOutcomes[index];
@@ -271,33 +308,32 @@ namespace EngineeringPlaybooksAddIn.Controllers
             }
         }
 
-        private double GetOffsetAngleRadians(Outcome keyOutcome, VertexColorPair vertexColorPair)
+        /// <summary>
+        /// First calculates the tangent vector of the point on the ellipse.
+        ///
+        /// Then depending on the count of the child outcomes, will pad the result so the outcomes better line up with the node.
+        /// </summary>
+        /// <param name="keyOutcome"></param>
+        /// <param name="vertexColorPair"></param>
+        /// <returns></returns>
+        protected double GetOffsetAngleRadians(Outcome keyOutcome, VertexColorPair vertexColorPair)
         {
-            var perpendicularVector = new Point(vertexColorPair.Y * (KeyNodeMinorRadius / KeyNodeMajorRadius),
-                -vertexColorPair.X / (KeyNodeMinorRadius / KeyNodeMajorRadius));
-            var xOffsetAngleDegrees = GeometryController.GetDegreesBetweenVector(_yAxisUnitVector, perpendicularVector);
-            var xOffsetAngleRadians = xOffsetAngleDegrees * (Math.PI / 180);
+            var p1 = new PointF(0,0);
+            var p2 = vertexColorPair.Point;
 
-            if (keyOutcome.childOutcomes.Count > 2)
+            var deltaY = (p2.Y - p1.Y);
+            var deltaX = (p2.X - p1.X);
+            var xOffsetAngleRadians = Math.Atan2(deltaY, deltaX);
+
+            if (keyOutcome.childOutcomes.Count == 2)
             {
-                xOffsetAngleRadians = XOffsetAngleRadians(keyOutcome, xOffsetAngleRadians);
+                xOffsetAngleRadians += Math.PI  /2.0;
             }
             else if (keyOutcome.childOutcomes.Count > 4)
             {
-                xOffsetAngleRadians = 0;
+                xOffsetAngleRadians += Math.PI + Math.PI * (1.0 / (2.0 * keyOutcome.childOutcomes.Count));
             }
 
-            //return 0;
-            return xOffsetAngleRadians;
-        }
-
-        private static double XOffsetAngleRadians(Outcome keyOutcome, double xOffsetAngleRadians)
-        {
-            //Offset all nodes by half so that the 'key outcome' doesn't overlap
-            var oneSliceOfPie = 1.0 / keyOutcome.childOutcomes.Count;
-            var halfSliceOfPie = 1.0 / 2.0 * oneSliceOfPie;
-            var radiansInOneCircle = 2.0 * Math.PI;
-            xOffsetAngleRadians += halfSliceOfPie * radiansInOneCircle;
             return xOffsetAngleRadians;
         }
 
@@ -369,6 +405,11 @@ namespace EngineeringPlaybooksAddIn.Controllers
             }
         }
 
+        /// <summary>
+        /// Will return true if the RGB value averages less than half of the color spectrum
+        /// </summary>
+        /// <param name="ellipseColor"></param>
+        /// <returns></returns>
         private static bool BackgroundColorIsToDark(string ellipseColor)
         {
             ellipseColor = ellipseColor.Replace(" ", "");
@@ -384,6 +425,11 @@ namespace EngineeringPlaybooksAddIn.Controllers
             return rgbAverage < 127;
         }
 
+        /// <summary>
+        /// Created by guessing and checking a few test cases for drawing.
+        /// </summary>
+        /// <param name="keyOutcomeTitle"></param>
+        /// <returns></returns>
         private static int CalculateSizeFontForChildNodeFromText(string keyOutcomeTitle)
         {
             var textLength = keyOutcomeTitle.Length;
@@ -402,7 +448,6 @@ namespace EngineeringPlaybooksAddIn.Controllers
             {
                 cellFontSizePt -= 1;
             }
-
             
             if (textLength > 54)
             {
@@ -415,7 +460,8 @@ namespace EngineeringPlaybooksAddIn.Controllers
                 {
                     cellFontSizePt -= 2;
                 }
-            } else if (textLength > 43)
+            } 
+            else if (textLength > 43)
             {
                 cellFontSizePt = 10;
                 if (edgeLength > 8)
@@ -426,7 +472,8 @@ namespace EngineeringPlaybooksAddIn.Controllers
                 {
                     cellFontSizePt -= 2;
                 }
-            } else if (textLength > 33)
+            } 
+            else if (textLength > 33)
             {
                 cellFontSizePt = 11;
                 if (edgeLength > 9)
@@ -434,9 +481,6 @@ namespace EngineeringPlaybooksAddIn.Controllers
                     cellFontSizePt -= 1;
                 }
             }
-
-
-
 
             return cellFontSizePt;
         }

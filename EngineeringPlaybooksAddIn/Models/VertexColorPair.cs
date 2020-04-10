@@ -1,21 +1,29 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace EngineeringPlaybooksAddIn.Models
+﻿namespace EngineeringPlaybooksAddIn.Models
 {
     public class VertexColorPair
     {
-        public double X { get; set; }
-        public double Y { get; set; }
+        public double X => Point.X;
+        public double Y => Point.Y;
         public Color Color { get; set; }
 
-        public VertexColorPair(double x, double y, Color color)
+        public Point Point { get; }
+
+        public VertexColorPair(Point point, Color color)
         {
-            X = x;
-            Y = y;
+            Point = point;
+            Color = color;
+        }
+
+        /// <summary>
+        /// Extra constructor to provide
+        /// </summary>
+        /// <param name="point"></param>
+        /// <param name="color"></param>
+        /// <param name="transformAxis"></param>
+        public VertexColorPair(Point point, Color color, bool transformAxis)
+        {
+            var transformScalar = transformAxis ? -1 : 1;
+            Point = new Point(point.X * transformScalar, point.Y * transformScalar);
             Color = color;
         }
     }

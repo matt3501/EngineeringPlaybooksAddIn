@@ -1,0 +1,116 @@
+{
+  "title": "Johnson Controls Workflows Team Team Business Analyst",
+  "description": "Business Analyst assists with the implementation and support of business information systems across multiple departments. They identify problems and opportunities within a company and ultimately provide solutions that help achieve the business' goals.A Business Analyst job description should cover collaborating with financial reporting and IT teams to develop initiatives and strategies that optimise costs and improve internal and external reporting.",
+  "outcomes": [
+    {
+      "title": "Apply Domain Research",
+      "contentUrl": "https://businessanalystlearnings.com/blog/2014/2/5/4jzgg9678pktjebcvozf1g8x91e3f1",
+      "childOutcomes": [
+        {
+          "title": "Outlining Problems",
+          "contentUrl": "https://www.dummies.com/business/business-strategy/how-to-create-a-problem-statement-in-business-analysis/"
+        },
+        {
+          "title": "Identifying opportunities",
+          "contentUrl": "https://www.batimes.com/articles/the-value-of-business-analysis-identifying-business-need.html"
+        },
+        {
+          "title": "Step 3",
+          "contentUrl": "https://www.google.com"
+        },
+        {
+          "title": "Step 4",
+          "contentUrl": "https://www.google.com"
+        }
+      ]
+    },
+    {
+      "title": "Thoughtfully Communicate",
+      "contentUrl": "https://businessanalystlearnings.com/business-analyst-career/2014/4/21/soft-skills-for-business-analysts-communication",
+      "childOutcomes": [
+        {
+          "title": "Define Business and Functional Requirements",
+          "contentUrl": "https://www.netsolutions.com/insights/business-and-functional-requirements-what-is-the-difference-and-why-should-you-care/"
+        },
+        {
+          "title": "Define Non-Functional Requirements",
+          "contentUrl": "https://www.batimes.com/articles/non-functional-requirements-why-do-we-need-them.html"
+        },
+        {
+          "title": "Step 3",
+          "contentUrl": "https://www.google.com"
+        },
+        {
+          "title": "Step 4",
+          "contentUrl": "https://www.google.com"
+        }
+      ]
+    },
+    {
+      "title": "Spur Product Velocity",
+      "contentUrl": "https://www.wrike.com/blog/how-to-increase-business-velocity-in-3-easy-steps/",
+      "childOutcomes": [
+        {
+          "title": "Prioritize Work to be done",
+          "contentUrl": "https://www.modernanalyst.com/Resources/Articles/tabid/115/ID/3332/Techniques-to-Prioritize-Requirements.aspx"
+        },
+        {
+          "title": "Budgeting and Forecasting",
+          "contentUrl": "https://blogs.sas.com/content/sascom/2011/02/11/business-analytics-101-budgeting-planning-and-forecasting/"
+        },
+        {
+          "title": "Step 3",
+          "contentUrl": "https://www.google.com"
+        },
+        {
+          "title": "Step 4",
+          "contentUrl": "https://www.google.com"
+        }
+      ]
+    },
+    {
+      "title": "Evaluate Milestones",
+      "contentUrl": "https://teams.microsoft.com/l/file/A5816C50-9CBF-48C1-89E5-C76697CD6C8E",
+      "childOutcomes": [
+        {
+          "title": "Variance analysis",
+          "contentUrl": "https://businessanalystlearnings.com/ba-techniques/2013/2/7/how-to-perform-variance-analysis"
+        },
+        {
+          "title": "Reporting and analytics",
+          "contentUrl": "https://www.quora.com/What-should-be-the-role-of-a-business-analyst-in-reporting-and-analytics-team"
+        },
+        {
+          "title": "Step 3",
+          "contentUrl": "https://www.google.com"
+        },
+        {
+          "title": "Step 4",
+          "contentUrl": "https://www.google.com"
+        }
+      ],
+	},
+    {
+      "title": "Demonstrate Production Value",
+      "contentUrl": "https://www.insight.com/en_US/content-and-resources/blog/how-business-analysts-drive-value.html",
+      "childOutcomes": [
+        {
+          "title": "Financial Modeling",
+          "contentUrl": "https://corporatefinanceinstitute.com/resources/knowledge/modeling/what-is-financial-modeling/"
+        },
+        {
+          "title": "Modeling business opportunities vs. cost",
+          "contentUrl": "https://businessanalystlearnings.com/ba-techniques/an-introduction-to-cost-benefit-analysis"
+        },
+        {
+          "title": "Step 3",
+          "contentUrl": "https://www.google.com"
+        },
+        {
+          "title": "Step 4",
+          "contentUrl": "https://www.google.com"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,138 @@
+{
+  "title": "Johnson Controls Workflows Team Engineering Manager I",
+  "description": "Engineering Managers are  trained to use their organizational and analytical skills to lead their teams in a variety of complex tasks. Their education and experience provides a foundation for problem solving, and by developing the following strengths they’ll be better equipped to successfully manage projects and add value to their organization.",
+  "outcomes": [
+    {
+      "title": "Leadership",
+      "contentUrl": "",
+      "childOutcomes": [
+        {
+          "title": "Research and develope designs",
+          "contentUrl": ""
+        },
+        {
+          "title": "Propose and manage budgets",
+          "contentUrl": ""
+        },
+        {
+          "title": "Supervise the work of teams",
+          "contentUrl": ""
+        },
+        {
+          "title": "Plan and execute project strategies",
+          "contentUrl": ""
+        },
+        {
+          "title": "Ensure upper management support",
+          "contentUrl": ""
+        },
+        {
+          "title": "Analyze technology, resource needs and market demand",
+          "contentUrl": ""
+        }
+      ]
+    },
+    {
+      "title": "Clearly Communicate",
+      "contentUrl": "",
+      "childOutcomes": [
+        {
+          "title": "Provide clear concise instructions",
+          "contentUrl": ""
+        },
+        {
+          "title": "Prioritize and delegate tasks",
+          "contentUrl": ""
+        },
+        {
+          "title": "Set quantifiable and technical product goals",
+          "contentUrl": ""
+        },
+        {
+          "title": "Define engineering policies, standards, procedures",
+          "contentUrl": ""
+        },
+        {
+          "title": "Improve engineering quality and efficiency",
+          "contentUrl": ""
+        },
+        {
+          "title": "Implement best practices in architecture",
+          "contentUrl": ""
+        }
+      ]
+    },
+    {
+      "title": "Delegation",
+      "contentUrl": "",
+      "childOutcomes": [
+        {
+          "title": "Step back and see a project in its entirety",
+          "contentUrl": ""
+        },
+        {
+          "title": "Tailor tasks to be accomplished by best employee",
+          "contentUrl": ""
+        },
+        {
+          "title": "Oversee results, prepare to answer questions",
+          "contentUrl": ""
+        }
+      ]
+    },
+    {
+      "title": "Attention to Detail",
+      "contentUrl": "",
+      "childOutcomes": [
+        {
+          "title": "Determine training and talent development",
+          "contentUrl": ""
+        },
+        {
+          "title": "Hire/recruit employees and build teams",
+          "contentUrl": ""
+        },
+        {
+          "title": "Create positive team culture",
+          "contentUrl": ""
+        }
+      ]
+    },
+    {
+      "title": "Responsibility",
+      "contentUrl": "",
+      "childOutcomes": [
+        {
+          "title": "Perform administrative functions",
+          "contentUrl": ""
+        },
+        {
+          "title": "Present and explain proposals to stakeholders",
+          "contentUrl": ""
+        },
+        {
+          "title": "Consult stakeholder project specifications",
+          "contentUrl": ""
+        },
+        {
+          "title": "Advocate full project lifecycle",
+          "contentUrl": ""
+        }
+      ]
+    },
+    {
+      "title": "Decision Making",
+      "contentUrl": "",
+      "childOutcomes": [
+        {
+          "title": "Direct, review, and approve product design",
+          "contentUrl": ""
+        },
+        {
+          "title": "Plan and assess project feasibility",
+          "contentUrl": ""
+        }
+      ]
+    }
+  ]
+}

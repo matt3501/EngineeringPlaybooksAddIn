@@ -1,0 +1,53 @@
+{
+  "title": "Johnson Controls Workflows Team Feature Lead",
+  "description": "A Feature Lead is responsible for coordinating and driving the team towards the successful delivery of a particular feature of your service or product.  They become the ‘go-to’ person for issues pertaining to their respective feature.",
+  "source-URL": "https://www.thoughtworks.com/insights/blog/feature-leading-agile-team",
+  "outcomes": [
+    {
+      "title": "Manage the related backlog",
+      "contentUrl": "",
+      "childOutcomes": [
+        {
+          "title": "Curate radar-related stories",
+          "contentUrl": ""
+        },
+        {
+          "title": "Populate with approved technical Designs",
+          "contentUrl": ""
+        }
+      ]
+    },
+    {
+      "title": "Set the technical direction",
+      "contentUrl": "",
+      "childOutcomes": [
+        {
+          "title": "Spiking innovative approaches",
+          "contentUrl": ""
+        },
+        {
+          "title": "Coordinate efforts with architecture",
+          "contentUrl": ""
+        },
+        {
+          "title": "Oversee results, prepare to answer questions",
+          "contentUrl": ""
+        }
+      ]
+    },
+    {
+      "title": "Drive analysis and Stakeholder engagement",
+      "contentUrl": "https://www.fundacionseres.org/lists/informes/attachments/1118/stakeholder%20engagement.pdf#page=11",
+      "childOutcomes": [
+        {
+          "title": "Research and develope designs",
+          "contentUrl": ""
+        },
+        {
+          "title": "How to Engage Stakeholders",
+          "contentUrl": "https://www.fundacionseres.org/lists/informes/attachments/1118/stakeholder%20engagement.pdf#page=15"
+        }
+      ]
+    }
+  ]
+}

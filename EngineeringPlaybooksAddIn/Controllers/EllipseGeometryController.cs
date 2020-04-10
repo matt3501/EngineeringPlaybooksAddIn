@@ -1,30 +1,41 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Numerics;
-using System.Text;
-using System.Threading.Tasks;
 using EngineeringPlaybooksAddIn.Models;
 
 namespace EngineeringPlaybooksAddIn.Controllers
 {
-    public class GeometryController
+    /// <summary>
+    /// Recursive Implementation based on https://stackoverflow.com/a/30853013/902833
+    /// </summary>
+    public class EllipseGeometryController
     {
+        private const double DeltaAngle = 0.0005;
+        private const double ArcAccuracy = 0.01;//10%
+
         public enum RotationStarts
         {
             RotationStartsAtAxisX,
             RotationStartsAtAxisY
         };
 
+        private static readonly Point EllipseCenter = new Point(0, 0);
         private static double _rectangleLeft;
         private static double _rectangleRight;
         private static double _rectangleTop;
         private static double _rectangleBottom;
         private static double _majorRadius;
         private static double _minorRadius;
-        private static double ARC_ACCURACY = 0.01;//10%
 
-        private static Point ellipseCenter = new Point(0, 0);
+        /// <summary>
+        /// Based on the number of equilateralSides passed in, each point will be (recursively) targeted on
+        /// the ellipse within the tolerance for arc length.
+        /// </summary>
+        /// <param name="ellipseMajorRadius"></param>
+        /// <param name="ellipseMinorRadius"></param>
+        /// <param name="equilateralSides"></param>
+        /// <param name="atWhichAxis"></param>
+        /// <param name="xOffsetAngleRadians"></param>
+        /// <returns></returns>
         public static List<Point> GetPointsForEllipse(double ellipseMajorRadius, double ellipseMinorRadius, int equilateralSides, RotationStarts atWhichAxis, double xOffsetAngleRadians)
         {
             if (atWhichAxis == RotationStarts.RotationStartsAtAxisY)
@@ -39,54 +50,53 @@ namespace EngineeringPlaybooksAddIn.Controllers
             }
 
             InitializePointBackToCenter();
-            List<Point> points = new List<Point>();
+            var points = new List<Point>();
 
             // Distance in radians between angles measured on the ellipse
-            double deltaAngle = 0.0005;
-            double circumference = GetLengthOfEllipse(deltaAngle);
+            double circumference = GetLengthOfEllipse(DeltaAngle);
 
             double arcLength = circumference / equilateralSides;
 
-            double angle = xOffsetAngleRadians - deltaAngle;
+            double angle = xOffsetAngleRadians - DeltaAngle;
 
             // Loop until we get all the points out of the ellipse
-            for (int numPoints = 0; numPoints < equilateralSides; numPoints++)
+            for (var numPoints = 0; numPoints < equilateralSides; numPoints++)
             {
-                angle = equilateralSides == 1 ? xOffsetAngleRadians : GetAngleForArcLengthRecursively(0, arcLength, angle, deltaAngle);
+                angle = equilateralSides == 1 ? xOffsetAngleRadians : GetAngleForArcLengthRecursively(0, arcLength, angle, DeltaAngle);
 
-                double xCandidate = _majorRadius * Math.Cos(angle);
-                double yCandidate = _minorRadius * Math.Sin(angle);
+                var xCandidate = _majorRadius * Math.Cos(angle);
+                var yCandidate = _minorRadius * Math.Sin(angle);
+                
+                var point = atWhichAxis == RotationStarts.RotationStartsAtAxisY ? new Point(xCandidate, yCandidate) : new Point(yCandidate, xCandidate);
 
-                if (atWhichAxis == RotationStarts.RotationStartsAtAxisY)
-                {
-                    points.Add(new Point(xCandidate, yCandidate));
-                } else {
-                    points.Add(new Point(yCandidate, xCandidate));
-                }
+                points.Add(point);
             }
 
             return points;
         }
 
+        /// <summary>
+        /// Helper used to create a bounding box the size of the ellipse
+        /// </summary>
         private static void InitializePointBackToCenter()
         {
-            _rectangleBottom = ellipseCenter.Y - _minorRadius;
-            _rectangleTop = ellipseCenter.Y + _minorRadius;
-            _rectangleLeft = ellipseCenter.X - _majorRadius;
-            _rectangleRight = ellipseCenter.X + _majorRadius;
+            _rectangleBottom = EllipseCenter.Y - _minorRadius;
+            _rectangleTop = EllipseCenter.Y + _minorRadius;
+            _rectangleLeft = EllipseCenter.X - _majorRadius;
+            _rectangleRight = EllipseCenter.X + _majorRadius;
         }
 
         private static double GetLengthOfEllipse(double deltaAngle)
         {
-            double length = 0;
+            double length = 0.0;
 
             // Distance in radians between angles
             double numIntegrals = Math.Round(Math.PI * 2.0 / deltaAngle);
 
-            double radiusX = (_rectangleRight - _rectangleLeft) / 2;
-            double radiusY = (_rectangleBottom - _rectangleTop) / 2;
+            double radiusX = (_rectangleRight - _rectangleLeft) / 2.0;
+            double radiusY = (_rectangleBottom - _rectangleTop) / 2.0;
 
-            // integrate over the elipse to get the circumference
+            // integrate over the ellipse to get the circumference
             for (int i = 0; i < numIntegrals; i++)
             {
                 length += ComputeArcOverAngle(radiusX, radiusY, i * deltaAngle, deltaAngle);
@@ -106,10 +116,10 @@ namespace EngineeringPlaybooksAddIn.Controllers
             {
                 return GetAngleForArcLengthRecursively(currentArcPos, goalArcPos, angle, angleSeg / 2);
 
-                // We're below the our goal value but not in range (
+                // We're below the our goal value, but not in range
             }
 
-            if (currentArcPos + nextSegLength < goalArcPos - ((goalArcPos - currentArcPos) * ARC_ACCURACY))
+            if (currentArcPos + nextSegLength < goalArcPos - ((goalArcPos - currentArcPos) * ArcAccuracy))
             {
                 return GetAngleForArcLengthRecursively(currentArcPos + nextSegLength, goalArcPos, angle + angleSeg, angleSeg);
 
@@ -131,29 +141,20 @@ namespace EngineeringPlaybooksAddIn.Controllers
             return distance * angleSeg;
         }
 
-        public static double GetDegreesBetweenVector(Point vector1, Point vector2)
+        /// <summary>
+        /// AngleBetweenInDegrees - the angle between 2 vectors
+        /// </summary>
+        /// <returns>
+        /// Returns the the angle in degrees between vector1 and vector2
+        /// </returns>
+        /// <param name="vector1"> The first Vector </param>
+        /// <param name="vector2"> The second Vector </param>
+        public static double AngleBetweenInDegrees(Point vector1, Point vector2)
         {
-            var t1 = (vector1.X * vector2.X) + (vector1.Y * vector2.Y);
-            var t2 = (vector1.X * vector1.X) + (vector1.Y * vector1.Y);
-            var s1 = Math.Sqrt(t2);
-            var t3 = (vector2.X * vector2.X) + (vector2.Y * vector2.Y);
-            var s2 = Math.Sqrt(t3);
-            var af = t1 / (s1 * s2);
-            var inv = Math.Acos(af) * 360 / (Math.PI * 2);
+            double sin = vector1.X * vector2.Y - vector2.X * vector1.Y;
+            double cos = vector1.X * vector2.X + vector1.Y * vector2.Y;
 
-            var angleBetween = Math.Round(inv, 5);
-
-            return angleBetween;
+            return Math.Atan2(sin, cos);
         }
-
-        //public Vector2 GetNormalAt(Point intersection)
-        //{
-        //    var vectorX = (float)(intersection.X - ellipseCenter.X);
-        //    var vectorY = (float)((intersection.Y - ellipseCenter.Y) * (_majorRadius / _minorRadius));
-        //    var perpendicularVector = new Vector2(vectorX, vectorY);
-
-        //    var normalVector = Vector2.Normalize(perpendicularVector);
-        //    return normalVector;
-        //}
     }
 }

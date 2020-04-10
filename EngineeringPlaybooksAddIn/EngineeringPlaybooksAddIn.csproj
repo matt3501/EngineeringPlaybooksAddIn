@@ -106,6 +106,7 @@
     <Reference Include="System" />
     <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />
+    <Reference Include="System.Numerics" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
     <Reference Include="System.Core" />
@@ -156,7 +157,7 @@
     can be found.
   -->
   <ItemGroup>
-    <Compile Include="Controllers\GeometryController.cs" />
+    <Compile Include="Controllers\EllipseGeometryController.cs" />
     <Compile Include="Controllers\JciPlaybooksDrawingController.cs" />
     <Compile Include="View\FormListShapes.cs">
       <SubType>Form</SubType>
@@ -214,6 +215,22 @@
     <Compile Include="ThisAddIn.cs">
       <SubType>Code</SubType>
     </Compile>
+    <None Include="samples\knowledge_1_2.json" />
+    <None Include="samples\knowledge_1_3.json" />
+    <None Include="samples\knowledge_2_2.json" />
+    <None Include="samples\knowledge_3_3.json" />
+    <None Include="samples\knowledge_4_1.json" />
+    <None Include="samples\knowledge_4_4.json" />
+    <None Include="samples\knowledge_5_1.json" />
+    <None Include="samples\knowledge_5_2.json" />
+    <None Include="samples\knowledge_5_3.json" />
+    <None Include="samples\knowledge_5_4.json" />
+    <None Include="samples\knowledge_6_4.json" />
+    <None Include="samples\knowledge_WorkflowsBusinessAnalyst.json" />
+    <None Include="samples\knowledge_WorkflowsEngineeringManagerI.json" />
+    <None Include="samples\knowledge_WorkflowsFeatureLeadI.json" />
+    <None Include="samples\knowledge_WorkflowsSWDevI.json" />
+    <None Include="samples\knowledge_WorkflowsSWDevII.json" />
     <None Include="ThisAddIn.Designer.xml">
       <DependentUpon>ThisAddIn.cs</DependentUpon>
     </None>

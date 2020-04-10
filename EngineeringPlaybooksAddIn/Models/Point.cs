@@ -10,6 +10,8 @@
             Y = y;
         }
 
+        public Point PreviousPoint { get; set; }
+
         public override bool Equals(object obj)
         {
             if (obj == null || obj.GetType() != typeof(Point)) return false;
