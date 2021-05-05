@@ -1,0 +1,129 @@
+{
+  "title": "Software Engineer II",
+  "description": "Software Engineer responsibilities include gathering user requirements, defining system functionality and writing code in various languages, like .NET programming languages (e.g. C++ or JavaScript) Our ideal candidates are familiar with the software development life cycle (SDLC) from preliminary system analysis to tests and deployment. Ultimately, the role of the Software Engineer is to build high-quality, innovative and fully performing software that complies with coding standards and technical design.",
+  "outcomes": [
+    {
+      "title": "Onboarding",
+	  "contentUrl": "",
+      "childOutcomes": [
+        {
+          "title": "HR onboarding",
+          "contentUrl": ""
+        },
+        {
+          "title": "Acquaint with work environment",
+          "contentUrl": ""
+        },
+        {
+          "title": "Workstation Setup/Development environment setup",
+          "contentUrl": ""
+        },
+        {
+          "title": "Complete curated jira stories",
+          "contentUrl": ""
+        },
+        {
+          "title": "Watch solution/project videos",
+          "contentUrl": ""
+        },
+        {
+          "title": "Solution Architecture overview",
+          "contentUrl": ""
+        },
+        {
+          "title": "Domain overview",
+          "contentUrl": ""
+        }
+     ]
+    },
+    {
+      "title": "Code base contributions",
+      "contentUrl": "",
+      "childOutcomes": [
+        {
+          "title": "Learn tech stack",
+		  "contentUrl": "",
+        },{
+          "title": "Intermediate GitHub Skills",
+		  "contentUrl": "",
+        },{
+          "title": "Testing feedback",
+          "contentUrl": ""
+        },{
+          "title": "Create Pull Requests",
+		  "contentUrl": "",
+        },{
+          "title": "Clarifications on known work",
+          "contentUrl": ""
+        }
+      ]
+    },
+    {
+      "title": "Implement meaningful software",
+      "contentUrl": "",
+      "childOutcomes": [
+        {
+          "title": "Write Unit tests",
+          "contentUrl": ""
+        },{
+          "title": "Work off prioritized backlog",
+          "contentUrl": ""
+        },{
+          "title": "Feature Branch Process",
+          "contentUrl": ""
+        }
+      ]
+    },
+    {
+      "title": "Software Responsibility",
+      "contentUrl": "",
+      "childOutcomes": [
+        {
+          "title": "Author new Jira Stories",
+          "contentUrl": ""
+        },{
+          "title": "Identify new technical debt",
+          "contentUrl": ""
+        },{
+          "title": "Attend customer site installs",
+          "contentUrl": ""
+        },{
+          "title": "Be a resource for external team requests",
+          "contentUrl": ""
+        }
+      ]
+    },
+    {
+      "title": "Feature Process Awareness",
+      "contentUrl": "",
+      "childOutcomes": [
+        {
+          "title": "Participate in Retros",
+          "contentUrl": ""
+        },{
+          "title": "Participate in New Feature Process",
+          "contentUrl": ""
+        },{
+          "title": "Demo completed work",
+          "contentUrl": ""
+        },{
+          "title": "Jira Grooming",
+          "contentUrl": ""
+        },{
+          "title": "Software Design contributor/reviewer",
+          "contentUrl": ""
+        }
+      ]
+    },
+    {
+      "title": "Contribute to Project Tracking",
+      "contentUrl": "",
+      "childOutcomes": [
+        {
+          "title": "Record hours in Daptiv",
+          "contentUrl": "https://login.daptiv.com/community/login"
+        }
+      ]
+    }
+  ]
+}
